@@ -1,0 +1,419 @@
+USE [FOO]
+
+GO
+
+ 
+
+/****** Object:  View [dbo].[VW_BASE_ANALISE_LOJAS_EXCEL]    Script Date: 12/18/2015 11:06:04 ******/
+
+SET ANSI_NULLS ON
+
+GO
+
+ 
+
+SET QUOTED_IDENTIFIER ON
+
+GO
+
+ 
+
+ALTER view [dbo].[VW_BASE_ANALISE_LOJAS_EXCEL] as
+
+ 
+
+ 
+
+SELECT distinct a.[CodigoLoja]
+
+      ,[RazaoSocial]
+
+      ,[CNPJ]
+
+      ,[CodigoMatriz]
+
+      ,[MatrizRazaoSocial]
+
+      ,[Tipo]
+
+      ,[UF]
+
+      ,[Regional]
+
+      ,[Diretor]
+
+      ,[ProducaoJV_Ultimos3Meses]
+
+      ,b.observacao
+
+      ,d.apontamento
+
+      ,e.Nome as 'Sócio I'
+
+      ,e.Documento as 'CPF Sócio I'
+
+      ,e.OBSERVACAO as 'Observação Sócio I'
+
+      ,e2.apontamento as 'Apontamentos Sócio I'
+
+      ,f.Nome as 'Sócio II'
+
+      ,f.Documento as 'CPF Sócio II'
+
+      ,f.OBSERVACAO as 'Observação Sócio II'
+
+      ,f2.apontamento as 'Apontamentos Sócio II'
+
+      ,g.Nome as 'Sócio III'
+
+      ,g.Documento as 'CPF Sócio III'
+
+      ,g.OBSERVACAO as 'Observação Sócio III'
+
+      ,g2.apontamento as 'Apontamentos Sócio III'
+
+      ,h.Nome as 'Sócio IV'
+
+      ,h.Documento as 'CPF Sócio IV'
+
+      ,h.OBSERVACAO as 'Observação Sócio IV'
+
+      ,h2.apontamento as 'Apontamentos Sócio IV'
+
+      ,i.Nome as 'Sócio V'
+
+      ,i.Documento as 'CPF Sócio V'
+
+      ,i.OBSERVACAO as 'Observação Sócio V'
+
+      ,i2.apontamento as 'Apontamentos Sócio V'
+
+      ,j.Nome as 'Sócio VI'
+
+      ,j.Documento as 'CPF Sócio VI'
+
+      ,j.OBSERVACAO as 'Observação Sócio VI'
+
+      ,j2.apontamento as 'Apontamentos Sócio VI'
+
+      ,k.Nome as 'Sócio VII'
+
+      ,k.Documento as 'CPF Sócio VII'
+
+      ,k.OBSERVACAO as 'Observação Sócio VII'
+
+      ,k2.apontamento as 'Apontamentos Sócio VII'
+
+      ,l.Nome as 'Sócio VIII'
+
+      ,l.Documento as 'CPF Sócio VIII'
+
+      ,l.OBSERVACAO as 'Observação Sócio VIII'
+
+      ,l2.apontamento as 'Apontamentos Sócio VIII'
+
+      ,m.Nome as 'Sócio IX'
+
+      ,m.Documento as 'CPF Sócio IX'
+
+      ,m.OBSERVACAO as 'Observação Sócio IX'
+
+      ,m2.apontamento as 'Apontamentos Sócio IX'
+
+        ,case when b.OBSERVACAO like '%DESFAVOR%' or e.OBSERVACAO like '%DESFAVOR%' or
+
+        f.OBSERVACAO like '%DESFAVOR%' or g.OBSERVACAO like '%DESFAVOR%' or h.OBSERVACAO like '%DESFAVOR%' or
+
+        i.OBSERVACAO like '%DESFAVOR%' or j.OBSERVACAO like '%DESFAVOR%' or k.OBSERVACAO like '%DESFAVOR%' or
+
+        l.OBSERVACAO like '%DESFAVOR%' or m.OBSERVACAO like '%DESFAVOR%'
+
+        then
+
+        'DESFAVORÁVEL'
+
+        when b.OBSERVACAO like '%RESSALVA%' or e.OBSERVACAO like '%RESSALVA%' or
+
+        f.OBSERVACAO like '%RESSALVA%' or g.OBSERVACAO like '%RESSALVA%' or h.OBSERVACAO like '%RESSALVA%' or
+
+        i.OBSERVACAO like '%RESSALVA%' or j.OBSERVACAO like '%RESSALVA%' or k.OBSERVACAO like '%RESSALVA%' or
+
+        l.OBSERVACAO like '%RESSALVA%' or m.OBSERVACAO like '%RESSALVA%'
+
+        then
+
+        'FAVORÁVEL C/RESSALVA'
+
+        when b.OBSERVACAO like '%PENDENTE%' or e.OBSERVACAO like '%PENDENTE%' or
+
+        f.OBSERVACAO like '%PENDENTE%' or g.OBSERVACAO like '%PENDENTE%' or h.OBSERVACAO like '%PENDENTE%' or
+
+        i.OBSERVACAO like '%PENDENTE%' or j.OBSERVACAO like '%PENDENTE%' or k.OBSERVACAO like '%PENDENTE%' or
+
+        l.OBSERVACAO like '%PENDENTE%' or m.OBSERVACAO like '%PENDENTE%'
+
+        then
+
+        'PENDENTE'
+
+        else
+
+        'FAVORÁVEL' end as ParecerFinal
+
+        --,pendencia
+
+       
+
+  FROM [CadastroCorban].[dbo].[VW_RELACAO_LOJAS_COMPLETO] a
+
+  inner join FOO..tb_analise_lojas_bx b on a.codigoloja = b.codigoloja and b.Correspondente = 1
+
+      outer apply (select isnull(Stuff(  (SELECT N', ' + apontamento FROM FOO..TB_APONTAMENTOS_BX d
+
+ 
+
+  where
+
+  ID_APONTAMENTOS_BX in (select distinct ID_APONTAMENTOS_BX from FOO..TB_LOJAS_APONTAMENTO_BX c where
+
+  c.ID_ANALISE_LOJAS_BX in
+
+  (
+
+  select ID_ANALISE_LOJAS_BX from FOO..tb_analise_lojas_bx b where a.codigoloja = b.codigoloja
+
+  and b.Correspondente = 1
+
+  ))
+
+   FOR XML PATH(''),TYPE)
+
+  .value('text()[1]','nvarchar(max)'),1,2,N''), 'Sem spontamento')  as apontamento from FOO..TB_APONTAMENTOS_BX d where
+
+  ID_APONTAMENTOS_BX in (select distinct ID_APONTAMENTOS_BX from FOO..TB_LOJAS_APONTAMENTO_BX c where
+
+  c.ID_ANALISE_LOJAS_BX in
+
+  (
+
+  select ID_ANALISE_LOJAS_BX from FOO..tb_analise_lojas_bx b where a.codigoloja = b.codigoloja
+
+  and b.Correspondente = 1
+
+  ))) d
+
+ 
+
+  outer apply (select top 1 * from FOO..tb_analise_lojas_bx e
+
+  where a.codigoloja = e.codigoloja and e.Correspondente = 0) e
+
+ 
+
+  outer apply (select isnull(Stuff(  (SELECT N', ' + apontamento FROM FOO..TB_APONTAMENTOS_BX e2
+
+  where
+
+  ID_APONTAMENTOS_BX in (select distinct ID_APONTAMENTOS_BX from FOO..TB_LOJAS_APONTAMENTO_BX e22 where
+
+  e22.ID_ANALISE_LOJAS_BX  = e.id_analise_lojas_bx  )
+
+   FOR XML PATH(''),TYPE)
+
+  .value('text()[1]','nvarchar(max)'),1,2,N''), 'Sem apontamento')  as apontamento from FOO..TB_APONTAMENTOS_BX e2 where
+
+  ID_APONTAMENTOS_BX in (select distinct ID_APONTAMENTOS_BX from FOO..TB_LOJAS_APONTAMENTO_BX e22 where
+
+  e22.ID_ANALISE_LOJAS_BX  = e.id_analise_lojas_bx  )) e2
+
+ 
+
+  outer apply (select top 1 * from FOO..tb_analise_lojas_bx f
+
+  where a.codigoloja = f.codigoloja and f.Correspondente = 0 and e.ID_ANALISE_LOJAS_BX <> f.ID_ANALISE_LOJAS_BX) f
+
+ 
+
+  outer apply (select isnull(Stuff(  (SELECT N', ' + apontamento FROM FOO..TB_APONTAMENTOS_BX f2
+
+  where
+
+  ID_APONTAMENTOS_BX in (select distinct ID_APONTAMENTOS_BX from FOO..TB_LOJAS_APONTAMENTO_BX f22 where
+
+  f22.ID_ANALISE_LOJAS_BX  = f.id_analise_lojas_bx  )
+
+   FOR XML PATH(''),TYPE)
+
+  .value('text()[1]','nvarchar(max)'),1,2,N''), 'Sem apontamento')  as apontamento from FOO..TB_APONTAMENTOS_BX f2 where
+
+  ID_APONTAMENTOS_BX in (select distinct ID_APONTAMENTOS_BX from FOO..TB_LOJAS_APONTAMENTO_BX f22 where
+
+  f22.ID_ANALISE_LOJAS_BX  = f.id_analise_lojas_bx  )) f2
+
+ 
+
+  outer apply (select top 1 * from FOO..tb_analise_lojas_bx g
+
+  where a.codigoloja = g.codigoloja and g.Correspondente = 0  and e.ID_ANALISE_LOJAS_BX <> g.ID_ANALISE_LOJAS_BX and f.ID_ANALISE_LOJAS_BX <> g.ID_ANALISE_LOJAS_BX) g
+
+ 
+
+  outer apply (select isnull(Stuff(  (SELECT N', ' + apontamento FROM FOO..TB_APONTAMENTOS_BX g2
+
+  where
+
+  ID_APONTAMENTOS_BX in (select distinct ID_APONTAMENTOS_BX from FOO..TB_LOJAS_APONTAMENTO_BX g22 where
+
+  g22.ID_ANALISE_LOJAS_BX  = g.id_analise_lojas_bx  )
+
+   FOR XML PATH(''),TYPE)
+
+  .value('text()[1]','nvarchar(max)'),1,2,N''), 'Sem apontamento')  as apontamento from FOO..TB_APONTAMENTOS_BX g2 where
+
+  ID_APONTAMENTOS_BX in (select distinct ID_APONTAMENTOS_BX from FOO..TB_LOJAS_APONTAMENTO_BX g22 where
+
+  g22.ID_ANALISE_LOJAS_BX  = g.id_analise_lojas_bx  )) g2
+
+ 
+
+  outer apply (select top 1 * from FOO..tb_analise_lojas_bx h
+
+  where a.codigoloja = h.codigoloja and h.Correspondente = 0  and e.ID_ANALISE_LOJAS_BX <> h.ID_ANALISE_LOJAS_BX and f.ID_ANALISE_LOJAS_BX <> h.ID_ANALISE_LOJAS_BX and g.ID_ANALISE_LOJAS_BX <> h.ID_ANALISE_LOJAS_BX) h
+
+ 
+
+  outer apply (select isnull(Stuff(  (SELECT N', ' + apontamento FROM FOO..TB_APONTAMENTOS_BX h2
+
+  where
+
+  ID_APONTAMENTOS_BX in (select distinct ID_APONTAMENTOS_BX from FOO..TB_LOJAS_APONTAMENTO_BX h22 where
+
+  h22.ID_ANALISE_LOJAS_BX  = h.id_analise_lojas_bx  )
+
+   FOR XML PATH(''),TYPE)
+
+  .value('text()[1]','nvarchar(max)'),1,2,N''), 'Sem apontamento')  as apontamento from FOO..TB_APONTAMENTOS_BX h2 where
+
+  ID_APONTAMENTOS_BX in (select distinct ID_APONTAMENTOS_BX from FOO..TB_LOJAS_APONTAMENTO_BX h22 where
+
+  h22.ID_ANALISE_LOJAS_BX  = h.id_analise_lojas_bx  )) h2
+
+ 
+
+  outer apply (select top 1 * from FOO..tb_analise_lojas_bx i
+
+  where a.codigoloja = i.codigoloja and i.Correspondente = 0  and e.ID_ANALISE_LOJAS_BX <> i.ID_ANALISE_LOJAS_BX and f.ID_ANALISE_LOJAS_BX <> i.ID_ANALISE_LOJAS_BX and g.ID_ANALISE_LOJAS_BX <> i.ID_ANALISE_LOJAS_BX and h.ID_ANALISE_LOJAS_BX <> i.ID_ANALISE_LOJAS_BX) i
+
+ 
+
+  outer apply (select isnull(Stuff(  (SELECT N', ' + apontamento FROM FOO..TB_APONTAMENTOS_BX i2
+
+  where
+
+  ID_APONTAMENTOS_BX in (select distinct ID_APONTAMENTOS_BX from FOO..TB_LOJAS_APONTAMENTO_BX i22 where
+
+  i22.ID_ANALISE_LOJAS_BX  = i.id_analise_lojas_bx  )
+
+   FOR XML PATH(''),TYPE)
+
+  .value('text()[1]','nvarchar(max)'),1,2,N''), 'Sem apontamento')  as apontamento from FOO..TB_APONTAMENTOS_BX i2 where
+
+  ID_APONTAMENTOS_BX in (select distinct ID_APONTAMENTOS_BX from FOO..TB_LOJAS_APONTAMENTO_BX i22 where
+
+  i22.ID_ANALISE_LOJAS_BX  = i.id_analise_lojas_bx  )) i2
+
+ 
+
+  outer apply (select top 1 * from FOO..tb_analise_lojas_bx j
+
+  where a.codigoloja = j.codigoloja and j.Correspondente = 0  and e.ID_ANALISE_LOJAS_BX <> j.ID_ANALISE_LOJAS_BX and f.ID_ANALISE_LOJAS_BX <> j.ID_ANALISE_LOJAS_BX and g.ID_ANALISE_LOJAS_BX <> j.ID_ANALISE_LOJAS_BX and h.ID_ANALISE_LOJAS_BX <> j.ID_ANALISE_LOJAS_BX and i.ID_ANALISE_LOJAS_BX <> j.ID_ANALISE_LOJAS_BX) j
+
+ 
+
+  outer apply (select isnull(Stuff(  (SELECT N', ' + apontamento FROM FOO..TB_APONTAMENTOS_BX j2
+
+  where
+
+  ID_APONTAMENTOS_BX in (select distinct ID_APONTAMENTOS_BX from FOO..TB_LOJAS_APONTAMENTO_BX j22 where
+
+  j22.ID_ANALISE_LOJAS_BX  = j.id_analise_lojas_bx  )
+
+   FOR XML PATH(''),TYPE)
+
+  .value('text()[1]','nvarchar(max)'),1,2,N''), 'Sem apontamento')  as apontamento from FOO..TB_APONTAMENTOS_BX j2 where
+
+  ID_APONTAMENTOS_BX in (select distinct ID_APONTAMENTOS_BX from FOO..TB_LOJAS_APONTAMENTO_BX j22 where
+
+  j22.ID_ANALISE_LOJAS_BX  = j.id_analise_lojas_bx  )) j2
+
+ 
+
+  outer apply (select top 1 * from FOO..tb_analise_lojas_bx k
+
+  where a.codigoloja = k.codigoloja and k.Correspondente = 0  and e.ID_ANALISE_LOJAS_BX <> k.ID_ANALISE_LOJAS_BX and f.ID_ANALISE_LOJAS_BX <> k.ID_ANALISE_LOJAS_BX and g.ID_ANALISE_LOJAS_BX <> k.ID_ANALISE_LOJAS_BX and h.ID_ANALISE_LOJAS_BX <> k.ID_ANALISE_LOJAS_BX and i.ID_ANALISE_LOJAS_BX <> k.ID_ANALISE_LOJAS_BX and j.ID_ANALISE_LOJAS_BX <> k.ID_ANALISE_LOJAS_BX) k
+
+ 
+
+  outer apply (select isnull(Stuff(  (SELECT N', ' + apontamento FROM FOO..TB_APONTAMENTOS_BX k2
+
+  where
+
+  ID_APONTAMENTOS_BX in (select distinct ID_APONTAMENTOS_BX from FOO..TB_LOJAS_APONTAMENTO_BX k22 where
+
+  k22.ID_ANALISE_LOJAS_BX  = k.id_analise_lojas_bx  )
+
+   FOR XML PATH(''),TYPE)
+
+  .value('text()[1]','nvarchar(max)'),1,2,N''), 'Sem apontamento')  as apontamento from FOO..TB_APONTAMENTOS_BX k2 where
+
+  ID_APONTAMENTOS_BX in (select distinct ID_APONTAMENTOS_BX from FOO..TB_LOJAS_APONTAMENTO_BX k22 where
+
+  k22.ID_ANALISE_LOJAS_BX  = k.id_analise_lojas_bx  )) k2
+
+ 
+
+  outer apply (select top 1 * from FOO..tb_analise_lojas_bx l
+
+  where a.codigoloja = l.codigoloja and l.Correspondente = 0  and e.ID_ANALISE_LOJAS_BX <> l.ID_ANALISE_LOJAS_BX and f.ID_ANALISE_LOJAS_BX <> l.ID_ANALISE_LOJAS_BX and g.ID_ANALISE_LOJAS_BX <> l.ID_ANALISE_LOJAS_BX and h.ID_ANALISE_LOJAS_BX <> l.ID_ANALISE_LOJAS_BX and i.ID_ANALISE_LOJAS_BX <> l.ID_ANALISE_LOJAS_BX and j.ID_ANALISE_LOJAS_BX <> l.ID_ANALISE_LOJAS_BX and k.ID_ANALISE_LOJAS_BX <> l.ID_ANALISE_LOJAS_BX) l
+
+   
+
+  outer apply (select isnull(Stuff(  (SELECT N', ' + apontamento FROM FOO..TB_APONTAMENTOS_BX l2
+
+  where
+
+  ID_APONTAMENTOS_BX in (select distinct ID_APONTAMENTOS_BX from FOO..TB_LOJAS_APONTAMENTO_BX l22 where
+
+  l22.ID_ANALISE_LOJAS_BX  = l.id_analise_lojas_bx  )
+
+   FOR XML PATH(''),TYPE)
+
+  .value('text()[1]','nvarchar(max)'),1,2,N''), 'Sem apontamento')  as apontamento from FOO..TB_APONTAMENTOS_BX l2 where
+
+  ID_APONTAMENTOS_BX in (select distinct ID_APONTAMENTOS_BX from FOO..TB_LOJAS_APONTAMENTO_BX l22 where
+
+  l22.ID_ANALISE_LOJAS_BX  = l.id_analise_lojas_bx  )) l2
+
+ 
+
+  outer apply (select top 1 * from FOO..tb_analise_lojas_bx m
+
+  where a.codigoloja = m.codigoloja and m.Correspondente = 0  and e.ID_ANALISE_LOJAS_BX <> m.ID_ANALISE_LOJAS_BX and f.ID_ANALISE_LOJAS_BX <> m.ID_ANALISE_LOJAS_BX and g.ID_ANALISE_LOJAS_BX <> m.ID_ANALISE_LOJAS_BX and h.ID_ANALISE_LOJAS_BX <> m.ID_ANALISE_LOJAS_BX and i.ID_ANALISE_LOJAS_BX <> m.ID_ANALISE_LOJAS_BX and j.ID_ANALISE_LOJAS_BX <> m.ID_ANALISE_LOJAS_BX and k.ID_ANALISE_LOJAS_BX <> m.ID_ANALISE_LOJAS_BX and l.ID_ANALISE_LOJAS_BX <> m.ID_ANALISE_LOJAS_BX) m
+
+ 
+
+  outer apply (select isnull(Stuff(  (SELECT N', ' + apontamento FROM FOO..TB_APONTAMENTOS_BX m2
+
+  where
+
+  ID_APONTAMENTOS_BX in (select distinct ID_APONTAMENTOS_BX from FOO..TB_LOJAS_APONTAMENTO_BX m22 where
+
+  m22.ID_ANALISE_LOJAS_BX  = m.id_analise_lojas_bx  )
+
+   FOR XML PATH(''),TYPE)
+
+  .value('text()[1]','nvarchar(max)'),1,2,N''), 'Sem apontamento')  as apontamento from FOO..TB_APONTAMENTOS_BX m2 where
+
+  ID_APONTAMENTOS_BX in (select distinct ID_APONTAMENTOS_BX from FOO..TB_LOJAS_APONTAMENTO_BX m22 where
+
+  m22.ID_ANALISE_LOJAS_BX  = m.id_analise_lojas_bx  )) m2
